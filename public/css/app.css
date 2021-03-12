@@ -1,0 +1,32 @@
+body {
+    font-family: 'Times New Roman', Times, serif;
+    background-color: rgb(16, 123, 211);
+  }
+  
+  a {
+    color: white;
+  }
+  
+  input,
+  select {
+    width: 200px;
+  }
+  
+  table.bordered-table th, td {
+    border: 1px solid silver; 
+    padding: 4px;
+  }
+  
+  table.bordered-table {
+    border-collapse: collapse;
+  }
+  
+  .formContainer {
+    width: 500px;
+    display: flex;
+    padding-bottom: 15px;
+  }
+  
+  .formCol {
+    width: 300px;
+  }
