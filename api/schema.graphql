@@ -16,7 +16,7 @@ enum CategoryList {
 }
 
 input ProductInputs {
-  category: CategoryList!
+  category: CategoryList
   name: String!
   price: Float
   imageurl: String
