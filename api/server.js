@@ -31,13 +31,12 @@ async function productList() {
   return products;
 }
 
-function productValidate(product)
-{
+function productValidate(product) {
   const errors = [];
-  if(product.category === null ) errors.push('Category not selected');
-  if(product.name === null ) errors.push('Product name not entered');
-  if(errors.length > 0) {
-    throw new UserInputError('Invalid input(s)', { errors } );
+  if (product.category === null) errors.push('Category not selected');
+  if (product.name === null) errors.push('Product name not entered');
+  if (errors.length > 0) {
+    throw new UserInputError('Invalid input(s)', { errors });
   }
 }
 

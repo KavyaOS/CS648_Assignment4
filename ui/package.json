@@ -37,6 +37,7 @@
   },
   "scripts": {
     "start": "nodemon -w uiserver.js -w .env uiserver.js",
+    "lint": "eslint . --ext js,jsx --ignore-pattern public",
     "watch": "babel src --presets @babel/react --out-dir public --watch --verbose",
     "compile": "babel src --presets @babel/react --out-dir public",
     "test": "echo \"Error: no test specified\" && exit 1"

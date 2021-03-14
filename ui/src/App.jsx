@@ -3,42 +3,41 @@
 /* globals React ReactDOM */
 /* eslint "react/jsx-no-undef": "off" */
 /* eslint "react/no-multi-comp": "off" */
+/* eslint "no-alert": "off" */
 
-class ProductRow extends React.Component {
-  render() {
-    const product = this.props.product;
-    return (
-      <tr>
-        <td>{product.name}</td>
-        <td>${product.price}</td>
-        <td>{product.category}</td>
-        <td><a href={product.imageurl} target="_blank"> View </a></td>
-      </tr>
-    );
-  }
+function ProductRow({ product }) {
+  return (
+    <tr>
+      <td>{product.name}</td>
+      <td>
+        $
+        {product.price}
+      </td>
+      <td>{product.category}</td>
+      <td><a href={product.imageurl} target="_blank" rel="noopener noreferrer"> View </a></td>
+    </tr>
+  );
 }
 
-class ProductTable extends React.Component {
-  render() {
-    const productRows = this.props.products.map(product =>
-      <ProductRow key={product.id} product={product} />
-    );
-    return (
-      <table className="bordered-table">
-        <thead>
-          <tr>
-            <th>Product Name</th>
-            <th>Price</th>
-            <th>Category</th>
-            <th>Image</th>
-          </tr>
-        </thead>
-        <tbody>
-          {productRows}
-        </tbody>
-      </table>
-    );
-  }
+function ProductTable({ products }) {
+  const productRows = products.map(product => (
+    <ProductRow key={product.id} product={product} />
+  ));
+  return (
+    <table className="bordered-table">
+      <thead>
+        <tr>
+          <th>Product Name</th>
+          <th>Price</th>
+          <th>Category</th>
+          <th>Image</th>
+        </tr>
+      </thead>
+      <tbody>
+        {productRows}
+      </tbody>
+    </table>
+  );
 }
 
 class ProductAdd extends React.Component {
@@ -59,8 +58,9 @@ class ProductAdd extends React.Component {
       category: form.category.value,
       imageurl: form.imageurl.value,
     };
-    this.props.createProduct(product);
-    form.name.value='';
+    const { createProduct } = this.props;
+    createProduct(product);
+    form.name.value = '';
     this.setState({ price: '$' });
     form.category.value = '';
     form.imageurl.value = '';
@@ -71,12 +71,13 @@ class ProductAdd extends React.Component {
   }
 
   render() {
+    const { price } = this.state;
     return (
       <form name="productAdd" onSubmit={this.handleSubmit}>
         <div className="formContainer">
           <div className="formCol">
             Category:
-            <br/>
+            <br />
             <select name="category">
               <option value="Shirts">Shirts</option>
               <option value="Jeans">Jeans</option>
@@ -84,35 +85,53 @@ class ProductAdd extends React.Component {
               <option value="Sweaters">Sweaters</option>
               <option value="Accessories">Accessories</option>
             </select>
-            <br/>
-            Product Name:<br/>
-            <input type="text" name="name"/>
-            <br/>
+            <br />
+            Product Name:
+            <br />
+            <input type="text" name="name" />
+            <br />
           </div>
-          <div className="formCol" >
-            Price Per Unit:<br/>
-            <input type = "text" name = "price" value = { this.state.price } onChange = { this.handlePriceChange }/>
-            <br/>
-            Image URL:<br/>
+          <div className="formCol">
+            Price Per Unit:
+            <br />
+            <input type="text" name="price" value={price} onChange={this.handlePriceChange} />
+            <br />
+            Image URL:
+            <br />
             <input type="text" name="imageurl" />
-            <br/>
+            <br />
           </div>
         </div>
-        <button>Add Product</button>
+        <button type="submit">Add Product</button>
       </form>
     );
   }
 }
 
 async function graphQLFetch(query, variables = {}) {
-  const response = await fetch(window.ENV.UI_API_ENDPOINT, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query, variables }),
-  })
-  const body = await response.text();
-  const result = JSON.parse(body);
-  return result.data;
+  try {
+    const response = await fetch(window.ENV.UI_API_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, variables }),
+    });
+    const body = await response.text();
+    const result = JSON.parse(body);
+
+    if (result.errors) {
+      const error = result.errors[0];
+      if (error.extensions.code === 'BAD_USER_INPUT') {
+        const details = error.extensions.exception.errors.join('\n ');
+        alert(`${error.message}:\n ${details}`);
+      } else {
+        alert(`${error.extensions.code}: ${error.message}`);
+      }
+    }
+    return result.data;
+  } catch (e) {
+    alert(`Error in sending data to server: ${e.message}`);
+    return null;
+  }
 }
 
 class ProductList extends React.Component {
@@ -135,7 +154,7 @@ class ProductList extends React.Component {
             price
             imageurl
         }
-    }`
+    }`;
 
     const data = await graphQLFetch(query);
     if (data) {
@@ -150,27 +169,28 @@ class ProductList extends React.Component {
       }
     }`;
 
-    const data = await graphQLFetch(query, { product })
+    const data = await graphQLFetch(query, { product });
     if (data) {
-      this.loadData()
+      this.loadData();
     }
   }
 
   render() {
+    const { products } = this.state;
     return (
       <React.Fragment>
         <h1>My Company Inventory</h1>
         <h3>Showing all available products</h3>
-        <hr/>
-        <ProductTable products={this.state.products} />
+        <hr />
+        <ProductTable products={products} />
         <h3>Add a new product to the Inventory</h3>
-        <hr/>
+        <hr />
         <ProductAdd createProduct={this.createProduct} />
       </React.Fragment>
     );
   }
 }
 
-const element = <ProductList/>;
+const element = <ProductList />;
 
 ReactDOM.render(element, document.getElementById('contents'));
