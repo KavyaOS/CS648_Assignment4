@@ -1,3 +1,5 @@
+/* eslint linebreak-style: ["error","windows"] */
+
 const fs = require('fs');
 require('dotenv').config();
 const { ApolloServer } = require('apollo-server-express');

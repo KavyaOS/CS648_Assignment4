@@ -1,3 +1,5 @@
+/* eslint linebreak-style: ["error","windows"] */
+
 const { UserInputError } = require('apollo-server-express');
 const { getDb, getNextSequence } = require('./db.js');
 
